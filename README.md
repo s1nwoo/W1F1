@@ -29,9 +29,13 @@
 ## &#128187; 프로젝트 인트로 영상
 [![Video Label](https://img.youtube.com/vi/aCwO6-Lt5fA/0.jpg)](https://youtu.be/aCwO6-Lt5fA)
 
+※ 클릭 시 유튜브로 연결됩니다. Ctrl+클릭으로 새창열기 해주세요.
+
 -----------
 ## &#128187; 프로젝트 시연 영상
 [![Video Label](https://img.youtube.com/vi/NiBQ3iUOvgM/0.jpg)](https://youtu.be/NiBQ3iUOvgM)
+
+※ 클릭 시 유튜브로 연결됩니다. Ctrl+클릭으로 새창열기 해주세요.
 
 -----------
 ## &#128221; 개발 설계
