@@ -12,7 +12,7 @@
 * 개발기간 : 2020.4.29 ~ 5.12(약 10일)
 * 사용기술 : JAVA
 * 개발팀원 : [정신우](https://github.com/s1nwoo "정신우") [남영준](https://github.com/YoungJoonNam "남영준") [송가람](https://github.com/NikkieS "송가람") [박혜미](https://github.com/phm3241 "박혜미") [장윤원](https://github.com/zannew "장윤원") [김승연](https://github.com/nullsector12 "김승연")
-* 담당업무 : 댓글 파트 및 페이징 처리
+* 담당업무 : 게시글 댓글 CRUD 및 페이징 처리
 
 -----------
 
