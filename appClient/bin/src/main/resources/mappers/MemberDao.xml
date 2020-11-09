@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wifi.client.dao.MemberDao">
+
+	<!-- 로그인. 회원가입 관련 =========================================================== -->
+
+	<!-- 카카오로그인한 이메일 ㅡ> db 확인  -->
+	<select id="checkMember" resultType="int">
+		select count(*) from wifi.member where id=#{checkId}
+	</select>
+	
+	<!-- 회원정보 객체로 가져오기 -->
+	<select id="getMember" resultType="com.wifi.client.model.Member">
+		select * from wifi.member where id=#{checkId}
+	</select>
+	
+	
+	<!-- 회원가입 -->
+	<insert id="regMember">
+		insert into wifi.member (id, name, addr, phone) values (#{id},#{name},#{addr},#{phone})
+	</insert>
+
+	
+
+
+</mapper>
+
+
+
+
+
+
+
+
