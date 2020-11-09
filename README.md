@@ -9,8 +9,9 @@
 "1인가구는 증가하고 있는 현대사회에서 혼자 구매하기 부담스러운 물품을 나눠 구매할 수 있는 서비스를 만들어보자!"
 라는 생각에서 시작되었다.
 ```
-* 개발기간 : 2020.4.29 ~ 5.12(약 10일)
+* 개발기간 : 2020.8.3 ~ 9.14
 * 사용기술 : JAVA
+* 개발환경 : Spring Framework
 * 개발팀원 : [정신우](https://github.com/s1nwoo "정신우") [남영준](https://github.com/YoungJoonNam "남영준") [송가람](https://github.com/NikkieS "송가람") [박혜미](https://github.com/phm3241 "박혜미") [장윤원](https://github.com/zannew "장윤원") [김승연](https://github.com/nullsector12 "김승연")
 * 담당업무 : 게시글 댓글 CRUD 및 페이징 처리
 
