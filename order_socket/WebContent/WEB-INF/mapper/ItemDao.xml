@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wifi.order.dao.ItemDao">
+
+
+
+	<!-- 공구 리스트. 정렬 관련 =========================================================== -->
+
+
+	<!-- 추천 공구 리스트 - 최신순정렬 : 아이템*판매자의 평점 조인 (평균평점. 총평점수). -->
+	<!-- 출력시, 숨김처리 안되있고, 오늘기준 마감일 안지난 글만 리스트 출력 -->
+	<select id="getRecomItemlist" resultType="com.wifi.order.model.ItemDTO">
+		select * from wifi.itemlist 
+		where istate = 1 and receive_check >= 0 order by regdate desc
+	</select>
+
+	<!-- 0917 파라미터타입, include where절 추가 -->
+	<!-- 일반 공구 리스트 - 최신순정렬 : 아이템*판매자의 평점 조인 (평균평점. 총평점수). -->
+	<!-- 출력시, 숨김처리 안되있고, 오늘기준 마감일 안지난 글만 리스트 출력 -->
+	<select id="getItemlist" parameterType="map" resultType="com.wifi.order.model.ItemDTO" >
+		select * from wifi.itemlist 
+		
+		<include refid="listSearch" />
+		limit #{startRow}, #{count}
+		
+	</select>
+
+	<select id="totalCount" parameterType="map" resultType="int">
+		select count(*) from wifi.itemlist
+		
+		<include refid="listSearch" />
+		
+		
+	</select>
+
+
+	<!-- 공구 상세보기 -->
+	<select id="viewItem" resultType="com.wifi.order.model.ItemDTO">
+		select * from wifi.itemlist where iidx=#{iidx};
+	</select>
+
+
+
+	<!-- 공구상세보기하면, 조회수 +1 -->
+	<update id="viewCountUp">
+		update wifi.item set view_count = view_count+1 where
+		iidx=#{iidx}
+	</update>
+
+
+
+
+	<!-- 공구 등록. 수정. 삭제 관련 =========================================================== -->
+
+	<!-- 공구 등록 -->
+	<insert id="regItem" parameterType="com.wifi.order.model.Item">
+		insert into wifi.item 
+		(title, price, count_m, count_w, receive, addr, location_y, location_x, content, photo, state, view_count, category, midx)
+		values (#{title}, #{price}, #{count_m}, #{count_w}, #{receive}, #{addr}, #{location_y}, #{location_x}, #{content},
+		#{photo}, #{state}, #{view_count}, #{category}, #{midx})
+	</insert>
+
+
+
+	<!-- 공구 등록 후 iidx 반환 -->
+	<select id="regItemIidx" parameterType="int" resultType="int">
+		<!-- select iidx from wifi.item where title=#{title} and midx=#{midx} -->
+		<!-- 제목이 중복될 수 있으므로 midx의 최근등록글로 iidx 반환하도록 sql 수정 -->
+		select iidx from wifi.item where midx=#{midx} order by regdate desc limit 1;
+	</select>
+
+
+
+	<!-- 공구 삭제 -->
+	<delete id="delItem">
+		delete from wifi.item where iidx=#{iidx}
+	</delete>
+
+
+	<!-- 공구 검색 관련 =========================================================== -->
+	<!-- javaScript로 처리 -->
+
+
+
+	<!-- 내 공구 판매현황 관련 =========================================================== -->
+
+
+	<!-- 나의 공구판매현황[모집중] - 내 판매글 현재 참여자 수 -->
+	<select id="cntBuyer" resultType="int">
+		select count(*) from wifi.mybuyerlist where iidx=#{iidx} and ostate != 1;
+	</select>
+	
+	
+	<!-- 나의 공구판매현황 - 판매글 리스트 : midx 받아서 ㅡ> 판매글 목록 (상태라벨, 제목) 화면출력 -->
+	<select id="getMyItem" resultType="com.wifi.order.model.MyItemDTO">
+		select * from wifi.myitemlist where seller=#{midx} group by iidx having istate !=-1 
+	</select>
+	
+	<!-- 나의 공구판매현황 - 참여자리스트 -->
+	<select id="getMyItemBuyer"
+		resultType="com.wifi.order.model.MyBuyerDTO">
+		select * from wifi.mybuyerlist where iidx=#{iidx} and
+		ostate != 1
+	</select>
+	
+	<!-- 나의 공구판매현황[모집중] - 참여자 구매자로 선정하기 -->
+	<insert id="selectBuyer" parameterType="java.util.Map">
+	<!-- insert into wifi.purchase (oidx) values #{oidx} -->
+		insert into wifi.purchase (oidx,qr) values
+		<foreach collection="list" item="oidxArr" separator=",">
+			(#{oidxArr},#{oidxArr})
+		</foreach>
+	</insert>
+	
+
+	<!-- 나의 공구판매현황[모집중] - 참여자 거절하기 -->
+	<update id="rejectBuyer">
+		update wifi.order set state=1 where oidx=#{oidx} 
+	</update>
+	
+	
+	<!-- 나의 공구판매현황[모집중] - 참여자 자동거절하기 -->
+	<update id="autoRejectBuyer" parameterType="hashmap">
+		update wifi.order set state=1 where oidx in
+		<foreach collection="oidxArr" item="oidxArr" index="index" open="(" close=")" separator=",">
+ 			#{oidxArr}
+		</foreach>
+		<!-- <foreach collection="array" item="buyerArr" open="(" close=")" separator=","> -->
+	</update>
+	
+	
+	<!-- 나의 공구판매현황[판매실패] - 참여자 자동거절하기(서버에서 바로 처리할때 -->
+	<update id="autoRejectBuyer1">
+	update wifi.order set state = 1 where iidx=#{iidx};
+	</update>
+
+
+	<!-- 나의 공구판매현황[판매완료] - 구매자 평점등록 -->
+	<insert id="reviewBuyer"
+		parameterType="com.wifi.order.model.Item_rvb">
+		insert into wifi.item_rvb (score_b, midx, iidx) values
+		(#{score_b}, #{midx}, #{iidx})
+	</insert>
+
+	<!-- 나의 공구판매현황[판매완료, 판매실패] - 내 판매글 숨김 -->
+	<update id="hideMyItem">
+		update wifi.item set state=-1 where iidx=#{iidx}
+	</update>
+
+	<!-- QR보기 -->
+	<select id="getQR" resultType="String">
+		SELECT qr FROM wifi.mybuyerlist where buyer=#{param1} and iidx=#{param2} 
+	</select>
+
+
+
+	<!-- 나의 공구판매현황[모집완료] : QR코드 발급하기 ◆ order + purchase join 해서 나의 공구판매현황[판매완료] 
+		: QR코드 사용처리하기 <update id=""> update wifi.purchase set state=1 where iidx=#{param1} 
+		and midx=#{param2} </update> 나의 공구판매현황[판매완료] : 구매자 평점 등록하기 <insert id="" 
+		parameterType="com.wifi.order.model.Item_rvb"> insert into wifi.item_rvb 
+		(score_b, midx, iidx) values (#{score_b}, #{midx}, #{iidx}) </insert> 나의 
+		공구판매현황[판매실패] : 글삭제하기 <delete id="delItem"> delete from wifi.item where iidx=#{iidx} 
+		</delete> -->
+
+<!-- 0917 추가 : WHERE Area -->
+	<sql id="listSearch">
+
+		<where>
+		
+			<include refid="checkDate"/>
+				
+			<if test="istate != null">
+				<if test="istate == 0">
+					<include refid="whereIstate" />
+				</if>
+				<if test="istate == 1">
+					<include refid="whereIstate" />
+				</if>
+				
+			</if>	
+			
+			<if test="searchType == null">
+					<include refid="defaultOrder" />
+			</if>	
+				
+		
+			<if test="searchType != null">
+				<if test="searchType == 'title'">
+					<include refid="whereTitle" />
+				</if>
+				<if test="searchType == 'name'">
+					<include refid="whereName" />
+				</if>
+				<if test="searchType == 'rvs_avg'">
+					<include refid="whereRvs_avg" />
+				</if>
+				<if test="searchType == 'both'">
+					<include refid="whereTitle" />
+					<include refid="whereName" />
+				</if>
+			</if>
+			
+			
+			
+			
+			<if test="midx != null">
+				<include refid="whereMidx" />
+			</if>
+			
+			
+			
+		</where>
+
+	</sql>
+
+
+	<sql id="checkDate">
+	
+		and  receive_check >= 0 
+
+	</sql>
+	<sql id="defaultOrder">
+	
+		order by regdate desc
+
+	</sql>
+	<sql id="whereTitle">
+	
+		and title like concat ('%',#{keyword},'%')
+
+	</sql>
+	<sql id="whereName">
+	
+		and name like concat ('%',#{keyword},'%')
+
+	</sql>
+
+	<sql id="whereRegDate">
+	
+		and order by  regdate desc
+
+	</sql>
+	<sql id="whereIstate">
+	
+		and istate=#{istate}
+
+	</sql>
+	<sql id="whereRvs_avg">
+	
+		order by rvs_avg desc
+
+	</sql>
+	
+	<sql id="whereMidx">
+	
+		and midx=#{midx}
+
+	</sql>
+	<sql id="increase">
+	
+		and midx=#{midx}
+
+	</sql>
+	
+	<!-- 0917 추가 : WHERE Area END -->
+
+</mapper>
+
+
+
+
+
+
+
+

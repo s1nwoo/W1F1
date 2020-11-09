@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+
+	<!-- project 실행 하면 톰캣실행. web.xml 실행하고 그 다음에 root-context.xml 실행. (기본설정들을 
+		설정한다. 여러개 할 수도있다. 데이터베이스 관련. 암호화 관련. ) 그 다음에 servlet-context.xml실행한다. (설정파일들을 
+		여러개 둘 수 있다. 개발단위별로 모듈로 설정도 가능) -->
+
+
+	<!-- hikari 등록 -->
+	<!-- <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" p:driverClassName="com.mysql.cj.jdbc.Driver" 
+		p:jdbcUrl="jdbc:mysql://aia.cedoxb9y9mdk.ap-northeast-2.rds.amazonaws.com:3306/wifi?serverTimezone=Asia/Seoul" 
+		p:username="admin" p:password="aiaadmin"> </bean> -->
+
+
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"
+		p:driverClassName="com.mysql.cj.jdbc.Driver"
+		p:jdbcUrl="jdbc:mysql://aia.c5kanasqugwv.ap-northeast-2.rds.amazonaws.com:3306/project?serverTimezone=Asia/Seoul"
+		p:username="bit" p:password="bit">
+	</bean>
+	
+	
+
+	<!-- jdbc Template등록 -->
+	<bean id="jdbcTemplate"
+		class="org.springframework.jdbc.core.JdbcTemplate"
+		p:dataSource-ref="dataSource">
+	</bean>
+
+
+	<!-- sqlSessionFactory 생성 myBatis-spring : SqlSessionfactoryBean : dataSource 
+		설정, mapper 설정 -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:mapperLocations="/WEB-INF/mapper/*.xml">
+	</bean>
+
+	<!-- Mybatis 이용하는 template 클래스 => sqlSessionTemplate -->
+
+	<bean id="sqlSession"
+		class="org.mybatis.spring.SqlSessionTemplate">
+		<!-- sqlSessionTemplate은 반드시 sqlSessionFactory가 필요하므로, 생성자주입방식으로 주입받도록 
+			설정한다. -->
+		<constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
+	</bean>
+	
+	<!-- webSocket -->
+	<bean id="echohandler" class="com.wifi.order.socket.EchoHandler"/>
+	
+	<websocket:handlers allowed-origins="*">
+		<websocket:mapping handler="echohandler" path="/echo"/>
+		<websocket:handshake-interceptors>
+			<bean class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor" />
+		</websocket:handshake-interceptors>
+		<websocket:sockjs/>
+	</websocket:handlers>
+</beans>

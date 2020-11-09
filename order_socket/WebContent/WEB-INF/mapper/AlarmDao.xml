@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wifi.order.dao.AlarmDao">
+
+	<!-- 판매현황 -->
+	<select id="getItemState" resultType="int">
+		select state from wifi.alarm_s where midx=#{param1} and iidx=#{param2}
+	</select>
+	
+	<update id="cancleSellerAlarm">
+		update wifi.alarm_s set state=0 where midx=#{param1} and iidx=#{param2}
+	</update>
+	
+	<!-- 정원이 꽉 찼을때 알림 취소 -->
+	<update id="cancleSellerConfirmAlarm">
+		update wifi.alarm_s set state=2 where midx=#{param1} and iidx=#{param2}
+	</update>
+	
+	<insert id="insertSellerAlarm">
+		insert into wifi.alarm_s values(#{param1}, #{param2}, 0)
+	</insert>
+	
+	<delete id="deleteSellerAlarm">
+		delete from wifi.alarm_s where iidx=#{iidx}
+	</delete>
+	
+	<!-- 판매자의 게시글 알림상태 값 1로 변경 -->
+	<update id="changeSellerAlarm">
+		update wifi.alarm_s set state=1 where midx=#{param1} and iidx=#{param2}
+	</update>
+	
+	<!-- 구매현황 -->
+	<select id="getOrderState" resultType="int">
+		select state from wifi.alarm_b where midx=#{param1} and iidx=#{param2}
+	</select>
+	
+	<update id="cancleBuyerAlarm">
+		update wifi.alarm_b set state=0 where midx=#{param1} and iidx=#{param2}
+	</update>
+	
+	<insert id="insertBuyerAlarm">
+		insert into wifi.alarm_b values(#{param1}, #{param2}, 0)
+	</insert>
+	
+	<delete id="deleteBuyerAlarm">
+		delete from wifi.alarm_b where midx=#{param1} and iidx=#{param2}
+	</delete>
+	
+	<!-- 선정 된 구매자의 알림상태 값 1로 변경 -->
+	<update id="changeBuyerAlarm">
+		update wifi.alarm_b set state=1 where midx=#{param1} and iidx=#{param2}
+	</update>
+	
+</mapper>
+
+
+
+
+
+
+
+

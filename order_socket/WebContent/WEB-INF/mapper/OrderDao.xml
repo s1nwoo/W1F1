@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wifi.order.dao.OrderDao">
+	
+	
+<!-- 내 프로필 관련 =========================================================== -->
+	
+	<!-- 내 판매자 평균평점 -->
+	<select id="getRvs" resultType="float">
+		SELECT  IFNULL(round(avg(score_s),1),0) as rvs FROM wifi.item_rvs where midx=#{midx};
+	</select>
+
+	<!-- 내 구매자 평균평점 -->
+	
+	<select id="getRvb" resultType="float">
+		SELECT  IFNULL(round(avg(score_b),1),0) as rvb FROM wifi.item_rvb where midx=#{midx};
+	</select>
+	
+	
+	
+<!-- 공구신청 관련 =========================================================== -->
+	
+	
+	<!-- 공구 참여신청 -->
+	<insert id="regOrder">
+		insert into wifi.order (midx, iidx) values (#{param1},#{param2})
+	</insert>
+	
+	<!-- 공구 참여신청 전 - 참여자 중복확인   -->
+	<select id="checkOrderOverlap" resultType="int">
+		select count(*) from wifi.myitemlist where buyer=#{param1} and iidx=#{param2}
+	</select>
+	
+	<!-- 공구 참여신청 전 - 잔여인원 확인  -->
+	<select id="checkItemRemain" resultType="int">
+		select count_w - count(buyer) from wifi.myitemlist where iidx = #{iidx}
+	</select>
+	
+	
+	
+<!-- 내 공구 구매현황 관련 =========================================================== -->
+	
+	<!-- 내 구매글 -->
+	<select id="getMyOrder" resultType="com.wifi.order.model.MyItemDTO">
+		select * from wifi.myitemlist where buyer=#{midx} and ostate !=-2
+	</select>
+	
+	<!-- 나의 공구구매현황[참여중][다음기회에..] - 참여취소(글삭제) -->
+	<delete id="cancleOrder">
+		delete from wifi.order where oidx=#{oidx}
+	</delete>
+	
+	<!-- 나의 공구구매현황[구매자] - 판매자 평점등록 -->
+	<insert id="reviewSeller" parameterType="com.wifi.order.model.Item_rvs">
+		insert into wifi.item_rvs (score_s, midx, iidx) values (#{score_s}, #{midx}, #{iidx})
+	</insert>
+	
+	<!-- 알람을 위한 midx & iidx 반환 -->
+	<select id="getOrderInfo" resultType="com.wifi.order.model.Order">
+		select * from wifi.order where oidx=#{oidx}
+	</select>
+	
+	<!-- 나의 공구구매현황[구매완료] - 글숨김 -->
+	<update id="hideOrder">
+		update wifi.order set state=-2 where oidx=#{oidx}
+	</update>
+	
+	<!-- 나의 공구구매현황[구매완료] - 주문글삭제 -->
+	<delete id="delOrder">
+		delete from wifi.order where oidx=#{oidx}
+	</delete>
+	
+	<!-- 나의 공구구매현황[구매완료] - 결제글삭제 -->
+	<delete id="delPurchase">
+		delete from wifi.purchase where pidx=#{pidx}
+	</delete>
+	
+	
+	<select id="getOidx" resultType="int">
+		select oidx from wifi.order where midx=#{param1} and iidx=#{param2}
+	</select>
+	
+	
+	
+
+	
+	
+	
+	
+	
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wifi.comment.dao.CommentDao">
+	
+	<!-- 댓글 리스트  -->
+	<select id="getComment" resultType="com.wifi.comment.model.CommentDTO">
+		select * from wifi.commentlist where state != 1 and iidx=#{iidx}
+	</select>
+	
+	<!-- 댓글 등록 -->
+	<insert id="regComment" parameterType="com.wifi.comment.model.Comment">
+		insert into wifi.comment (content, midx, iidx) values (#{content},#{midx},#{iidx})
+	</insert>
+
+	<!-- 댓글 수정 - 원본가져오기 -->
+	 <select id="getViewComment" resultType="com.wifi.comment.model.Comment">
+		select * from wifi.comment where state != 1 and cidx=#{cidx}
+	</select>
+	
+	<!-- 댓글 수정 - iidx 반환 -->
+	 <select id="getIidxComment" resultType="int">
+		select iidx from wifi.comment where state != 1 and cidx=#{cidx}
+	</select>
+
+	<!-- 댓글 수정 -->
+	<update id="editComment">
+		update wifi.comment set content=#{param2} where cidx=#{param1}
+	</update>
+	
+	
+	<!-- 댓글 삭제 -->
+	<update id="delComment">
+		update wifi.comment set state=1 where cidx=#{cidx}
+	</update>
+	
+
+
+
+</mapper>
